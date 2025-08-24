@@ -1,34 +1,43 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
+import * as React from 'react'
 import './App.css'
+import { Navbar } from '@/components/Navbar'
+import { Hero } from '@/components/Hero'
+import { About } from '@/components/About'
+import { Projects } from '@/components/Projects'
+import { Footer } from '@/components/Footer'
+import { ScrollTop } from '@/components/ScrollTop'
 
 function App() {
-  const [count, setCount] = useState(0)
+  React.useEffect(() => {
+    const root = document.documentElement
+    root.style.setProperty('--radius', '10px')
+    document.body.classList.add('antialiased')
+    let to: number | undefined
+    const onScroll = () => {
+      document.documentElement.classList.add('is-scrolling')
+      if (to) window.clearTimeout(to)
+      to = window.setTimeout(() => {
+        document.documentElement.classList.remove('is-scrolling')
+      }, 250)
+    }
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => {
+      window.removeEventListener('scroll', onScroll)
+      if (to) window.clearTimeout(to)
+    }
+  }, [])
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
+    <div className="font-sans">
+      <Navbar />
+      <main>
+        <Hero />
+        <About />
+        <Projects />
+      </main>
+      <Footer />
+      <ScrollTop />
+    </div>
   )
 }
 
