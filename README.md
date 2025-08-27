@@ -1,4 +1,4 @@
-## Raihan Satya Natha Hamzah — Portfolio (Frontend-only)
+## RaihanSnh Portfolio
 
 Stack: React + TypeScript + Vite + Tailwind CSS + shadcn-style UI.
 
@@ -6,5 +6,3 @@ Stack: React + TypeScript + Vite + Tailwind CSS + shadcn-style UI.
 1. Install deps: `npm install`
 2. Start dev server: `npm run dev`
 3. Build for production: `npm run build` then `npm run preview`
-
-

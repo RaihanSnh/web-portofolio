@@ -3,7 +3,7 @@ import { SOCIALS, PROFILE } from "@/data"
 
 export function Footer() {
   return (
-    <footer id="social" className="relative border-t border-border bg-card/40">
+    <footer id="social" className="relative border-t border-border bg-transparent">
       <div aria-hidden className="pointer-events-none absolute inset-0 z-0">
         <img src="/img/clouds.svg" className="absolute left-6 top-4 h-16 opacity-60" alt="" />
         <img src="/img/mountain.svg" className="absolute right-6 bottom-6 h-20 opacity-60" alt="" />
@@ -47,8 +47,12 @@ export function Footer() {
           </div>
           {/* back-to-top removed per request; floating ScrollTop remains */}
         </div>
-        <p className="mt-6 text-center text-sm text-muted-foreground">© {new Date().getFullYear()} {PROFILE.name} · brewed with coffee and late-night commits.</p>
-        <p className="mt-4 text-center text-2xl md:text-3xl italic font-handwriting -rotate-1">I yearn for meaningful work and genuine connections.</p>
+        <p className="mt-6 text-center text-2xl md:text-3xl italic font-handwriting -rotate-1">I yearn for meaningful work and genuine connections.</p>
+        <p className="mt-4 text-center text-sm text-muted-foreground">
+          <span className="inline-block rounded-md ghibli-pill px-2 py-1">
+            © {new Date().getFullYear()} {PROFILE.name} · brewed with coffee and late-night commits.
+          </span>
+        </p>
       </div>
     </footer>
   )

@@ -7,7 +7,7 @@ export function About() {
     <section id="about" className="relative mx-auto max-w-6xl px-4 py-16">
       <div className="grid gap-8 md:grid-cols-[1.2fr_1fr] items-start">
         <div className="relative">
-          <div className="rounded-xl border border-border bg-card p-6 shadow-[0_15px_40px_-20px_rgb(0_0_0_/_45%)] relative">
+          <div className="rounded-xl border border-border bg-card p-6 card-shadow relative">
             <h2 className="font-black text-2xl md:text-3xl mb-2 underline-scribble inline-block">About</h2>
             <p className="leading-relaxed">
               Hi! I&apos;m {PROFILE.name}. I write software that tries to be calm, clear, and
@@ -26,16 +26,18 @@ export function About() {
         <div className="relative">
           <div className="flex flex-wrap gap-3">
             {TOOLS.map((t, i) => {
-              const rot = ((i * 17) % 7) - 3 // -3..3 deg
-              const y = ((i * 23) % 6) - 3 // -3..3 px
+              const rot = ((i * 17) % 7) - 3
+              const y = ((i * 23) % 6) - 3
               const x = ((i * 31) % 6) - 3
+              const dur = 6 + ((i * 7) % 5)
+              const isDarkLogo = /github|nextjs|prisma|express/i.test(t.icon)
               return (
                 <Tooltip key={t.name} content={<div><span className="font-semibold">{t.name}</span></div>}>
                   <img
                     src={t.icon}
                     alt={`${t.name} icon`}
-                    className="h-10 w-10 md:h-12 md:w-12 rounded-md border border-border bg-card p-2 shadow transition-transform hover:scale-110 hover:-rotate-2 hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ping-slow"
-                    style={{ transform: `translate(${x}px, ${y}px) rotate(${rot}deg)` }}
+                    className={`h-10 w-10 md:h-12 md:w-12 rounded-md border border-border bg-card p-2 shadow transition-transform hover:scale-110 hover:-rotate-2 hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring animate-indie-idle ${isDarkLogo ? 'force-white-on-dark' : ''}`}
+                    style={{ transform: `translate(calc(${x}px + var(--idle-tx)), calc(${y}px + var(--idle-ty))) rotate(calc(${rot}deg + var(--idle-rot)))`, ['--idle-dur' as any]: `${dur}s` }}
                   />
                 </Tooltip>
               )

@@ -5,6 +5,58 @@ import { Slider } from "@/components/ui/slider"
 import { Repeat, Shuffle, SkipBack, SkipForward, Play, Pause, Volume2 } from "lucide-react"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 
+function ScrollingText({ text, containerClassName, textClassName }: { text: string; containerClassName?: string; textClassName?: string }) {
+  const containerRef = React.useRef<HTMLDivElement | null>(null)
+  const contentRef = React.useRef<HTMLDivElement | null>(null)
+  const measureRef = React.useRef<HTMLDivElement | null>(null)
+  const [shouldMarquee, setShouldMarquee] = React.useState(false)
+  const [durationMs, setDurationMs] = React.useState(18000)
+
+  React.useEffect(() => {
+    const doMeasure = () => {
+      const container = containerRef.current
+      const measureEl = measureRef.current
+      if (!container || !measureEl) return
+      const needs = measureEl.scrollWidth > container.clientWidth + 2
+      setShouldMarquee(needs)
+      if (needs) {
+        const overflow = measureEl.scrollWidth - container.clientWidth
+        const pxPerSec = 60
+        const ms = Math.min(28000, Math.max(12000, Math.round((overflow / pxPerSec) * 1000)))
+        setDurationMs(ms)
+      }
+    }
+    const raf = requestAnimationFrame(doMeasure)
+    const ro = new ResizeObserver(doMeasure)
+    if (containerRef.current) ro.observe(containerRef.current)
+    return () => { ro.disconnect(); cancelAnimationFrame(raf) }
+  }, [text])
+
+  return (
+    <div ref={containerRef} className={`relative overflow-hidden min-w-0 ${containerClassName || ""}`}>
+      {/* hidden measuring element to decide overflow without affecting layout */}
+      <div ref={measureRef} className={`absolute left-0 top-0 invisible whitespace-nowrap pointer-events-none ${textClassName || ""}`}>{text}</div>
+      {shouldMarquee ? (
+        <div
+          ref={contentRef}
+          className={`flex w-max animate-marquee ${textClassName || ""}`}
+          style={{ animationDuration: `${durationMs}ms` }}
+          aria-label={text}
+        >
+          <span className="pr-10 whitespace-nowrap">{text}</span>
+          <span className="pr-10 whitespace-nowrap" aria-hidden>
+            {text}
+          </span>
+        </div>
+      ) : (
+        <div ref={contentRef} className={`truncate whitespace-nowrap ${textClassName || ""}`} aria-label={text}>
+          {text}
+        </div>
+      )}
+    </div>
+  )
+}
+
 type AudioState = {
   currentIndex: number
   isPlaying: boolean
@@ -15,7 +67,9 @@ type AudioState = {
   repeat: boolean
 }
 
-export function MusicPlayer() {
+type PlayerProps = { minimal?: boolean }
+
+export function MusicPlayer({ minimal = false }: PlayerProps) {
   const [state, setState] = React.useState<AudioState>({
     currentIndex: 0,
     isPlaying: false,
@@ -104,7 +158,7 @@ export function MusicPlayer() {
   }, [state.progress, state.duration])
 
   return (
-    <Card className="overflow-hidden">
+    <Card className="overflow-hidden card-shadow">
       <CardHeader className="flex flex-col gap-4">
         <div className="grid gap-6 md:grid-cols-[220px_1fr]">
           <div className="space-y-4">
@@ -116,30 +170,42 @@ export function MusicPlayer() {
             </div>
           </div>
           <div className="min-w-0 self-center">
-            <div className="relative inline-block -rotate-1 rounded-md border border-border bg-accent/40 px-3 py-2 shadow">
-              <p className="font-handwriting text-lg md:text-2xl italic leading-snug" aria-live="polite">
-                {currentSong.lyric?.trim() ? `“${currentSong.lyric}”` : 'Add ur favorite lyric in src/data.ts (SONGS[].lyric)'}
-              </p>
-            </div>
-            <div className="mt-3 flex items-end gap-3">
-              <div className="hidden md:flex items-end gap-1" aria-hidden>
-                <span className={`eq-bar ${state.isPlaying ? 'animate-eq' : ''}`} />
-                <span className={`eq-bar delay-100 ${state.isPlaying ? 'animate-eq' : ''}`} />
-                <span className={`eq-bar delay-200 ${state.isPlaying ? 'animate-eq' : ''}`} />
-                <span className={`eq-bar delay-300 ${state.isPlaying ? 'animate-eq' : ''}`} />
-                <span className={`eq-bar delay-400 ${state.isPlaying ? 'animate-eq' : ''}`} />
-              </div>
-              <div className="min-w-0">
-                <p className="truncate text-2xl md:text-3xl font-black">{currentSong.title}</p>
-                <p className="truncate text-base md:text-lg text-muted-foreground">{currentSong.artist}</p>
-              </div>
-            </div>
+            {!minimal && (
+              <>
+                <div className="relative inline-block -rotate-1 rounded-md border border-border bg-accent/40 px-3 py-2 shadow">
+                  <p className="font-handwriting text-lg md:text-2xl italic leading-snug" aria-live="polite">
+                    {currentSong.lyric?.trim() ? `“${currentSong.lyric}”` : 'Add ur favorite lyric in src/data.ts (SONGS[].lyric)'}
+                  </p>
+                </div>
+                <div className="mt-3 flex items-end gap-3">
+                  <div className="hidden md:flex items-end gap-1" aria-hidden>
+                    <span className={`eq-bar ${state.isPlaying ? 'animate-eq' : ''}`} />
+                    <span className={`eq-bar delay-100 ${state.isPlaying ? 'animate-eq' : ''}`} />
+                    <span className={`eq-bar delay-200 ${state.isPlaying ? 'animate-eq' : ''}`} />
+                    <span className={`eq-bar delay-300 ${state.isPlaying ? 'animate-eq' : ''}`} />
+                    <span className={`eq-bar delay-400 ${state.isPlaying ? 'animate-eq' : ''}`} />
+                  </div>
+                  <div className="min-w-0">
+                    <ScrollingText
+                      text={currentSong.title}
+                      containerClassName="max-w-[260px] md:max-w-[420px]"
+                      textClassName="text-2xl md:text-3xl font-black"
+                    />
+                    <ScrollingText
+                      text={currentSong.artist}
+                      containerClassName="max-w-[260px] md:max-w-[420px]"
+                      textClassName="text-base md:text-lg text-muted-foreground"
+                    />
+                  </div>
+                </div>
+              </>
+            )}
           </div>
         </div>
       </CardHeader>
       <CardContent className="space-y-3">
         <div className="flex items-center gap-2">
-          <span className="w-10 text-xs tabular-nums">{format(state.progress)}</span>
+          {!minimal && <span className="w-10 text-xs tabular-nums">{format(state.progress)}</span>}
           <Slider
             min={0}
             max={Math.max(state.duration, 0.00001)}
@@ -148,7 +214,7 @@ export function MusicPlayer() {
             onChange={(e) => seek(Number((e.target as HTMLInputElement).value))}
             aria-label="Seek"
           />
-          <span className="w-10 text-xs tabular-nums text-right">{format(state.duration)}</span>
+          {!minimal && <span className="w-10 text-xs tabular-nums text-right">{format(state.duration)}</span>}
         </div>
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-2">
@@ -169,17 +235,21 @@ export function MusicPlayer() {
             </Button>
           </div>
           <div className="flex items-center gap-2">
-            <Volume2 className="h-4 w-4" />
-            <input
-              type="range"
-              min={0}
-              max={1}
-              step={0.01}
-              value={state.volume}
-              onChange={(e) => setState((s) => ({ ...s, volume: Number(e.target.value) }))}
-              aria-label="Volume"
-              className="h-2 w-28 cursor-pointer rounded-full bg-muted"
-            />
+            {!minimal && (
+              <>
+                <Volume2 className="h-4 w-4" />
+                <input
+                  type="range"
+                  min={0}
+                  max={1}
+                  step={0.01}
+                  value={state.volume}
+                  onChange={(e) => setState((s) => ({ ...s, volume: Number(e.target.value) }))}
+                  aria-label="Volume"
+                  className="h-2 w-28 cursor-pointer rounded-full bg-muted"
+                />
+              </>
+            )}
           </div>
         </div>
         <audio
@@ -193,5 +263,3 @@ export function MusicPlayer() {
     </Card>
   )
 }
-
-

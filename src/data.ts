@@ -15,7 +15,7 @@ export type Song = {
   lyric?: string
 }
 
-export type Tool = { name: string; icon: string; since?: string }
+export type Tool = { name: string; icon: string }
 
 export type Project = {
   id: string
@@ -50,8 +50,17 @@ export const PROFILE: Profile = {
 export const SONGS: Song[] = [
   {
     id: 1,
-    title: "Song Title",
+    title: "Why Are Sundays So Depressing?",
     artist: "Artist Name",
+    src: "/audio/song1.mp3",
+    albumArt: "/img/album1.svg",
+    length: "3:45",
+    lyric: "you're hidin in the background but you want to be found",
+  },
+  {
+    id: 2,
+    title: "Song ",
+    artist: "testapajanamaartistlaguidk",
     src: "/audio/song1.mp3",
     albumArt: "/img/album1.svg",
     length: "3:45",
@@ -60,27 +69,27 @@ export const SONGS: Song[] = [
 ]
 
 export const TOOLS: Tool[] = [
-  { name: "React", icon: "/icons/react.svg", since: "2019" },
-  { name: "Next.js", icon: "/icons/nextjs.svg", since: "2020" },
-  { name: "TypeScript", icon: "/icons/typescript.svg", since: "2020" },
-  { name: "Tailwind", icon: "/icons/tailwind.svg", since: "2020" },
-  { name: "Docker", icon: "/icons/docker.svg", since: "2021" },
-  { name: "Git", icon: "/icons/git.svg", since: "2018" },
-  { name: "Vite", icon: "/icons/vite.svg", since: "2021" },
-  { name: "Node.js", icon: "/icons/node.svg", since: "2019" },
-  { name: "Express", icon: "/icons/express.svg", since: "2019" },
-  { name: "Redux", icon: "/icons/redux.svg", since: "2020" },
-  { name: "Zustand", icon: "/icons/zustand.svg", since: "2022" },
-  { name: "TanStack Query", icon: "/icons/react-query.svg", since: "2022" },
-  { name: "Jest", icon: "/icons/jest.svg", since: "2020" },
-  { name: "Cypress", icon: "/icons/cypress.svg", since: "2021" },
-  { name: "Playwright", icon: "/icons/playwright.svg", since: "2023" },
-  { name: "Vitest", icon: "/icons/vitest.svg", since: "2022" },
-  { name: "Prisma", icon: "/icons/prisma.svg", since: "2022" },
-  { name: "PostgreSQL", icon: "/icons/postgres.svg", since: "2020" },
-  { name: "MongoDB", icon: "/icons/mongo.svg", since: "2020" },
-  { name: "AWS", icon: "/icons/aws.svg", since: "2022" },
-  { name: "Figma", icon: "/icons/figma.svg", since: "2019" },
+  { name: "React", icon: "/icons/react.svg" },
+  { name: "Next.js", icon: "/icons/nextjs.svg" },
+  { name: "TypeScript", icon: "/icons/typescript.svg" },
+  { name: "Tailwind", icon: "/icons/tailwind.svg" },
+  { name: "Docker", icon: "/icons/docker.svg" },
+  { name: "Git", icon: "/icons/git.svg" },
+  { name: "Github", icon: "/icons/github.svg" },
+  { name: "Node.js", icon: "/icons/node.svg" },
+  { name: "Express", icon: "/icons/express.svg" },
+  { name: "Odoo", icon: "/icons/odoo.svg" },
+  { name: "Laravel", icon: "/icons/laravel.svg" },
+  { name: "TanStack Query", icon: "/icons/react-query.svg" },
+  { name: "Golang", icon: "/icons/golang.svg" },
+  { name: "Java", icon: "/icons/java.svg" },
+  { name: "Vue", icon: "/icons/vue.svg" },
+  { name: "Nuxt", icon: "/icons/nuxt.svg" },
+  { name: "Prisma", icon: "/icons/prisma.svg" },
+  { name: "PostgreSQL", icon: "/icons/postgres.svg" },
+  { name: "MySQL", icon: "/icons/mysql.svg" },
+  { name: "MongoDB", icon: "/icons/mongo.svg" },
+  { name: "Figma", icon: "/icons/figma.svg" },
 ]
 
 export const PROJECTS: Project[] = [
@@ -125,10 +134,10 @@ export const PROJECTS: Project[] = [
 ]
 
 export const SOCIALS: Social = {
-  email: "hello@example.com",
-  github: "https://github.com/abc",
-  linkedin: "https://www.linkedin.com/in/abc",
-  instagram: "https://instagram.com/abc",
+  email: "natharaihans@gmail.com",
+  github: "https://github.com/RaihanSnh",
+  linkedin: "https://www.linkedin.com/in/raihansatyanathahamzah/",
+  instagram: "https://instagram.com/raihansnh",
 }
 
 

@@ -25,7 +25,7 @@ export function Navbar() {
   }
 
   return (
-    <header className="sticky top-0 z-50 backdrop-blur supports-[backdrop-filter]:bg-background/70 border-b border-border">
+    <header className="sticky top-2 z-50 mx-2 rounded-3xl border border-border overflow-hidden backdrop-blur supports-[backdrop-filter]:bg-background/70 shadow-[0_10px_30px_-15px_rgba(0,0,0,0.35)]">
       <nav className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3">
         <a href="#hero" className="flex items-center gap-2 font-black tracking-tight text-xl md:text-2xl" aria-label="Go to top" onClick={(e) => { e.preventDefault(); smoothScrollTo('#hero') }}>
           <img src="/icons/logo-temp.svg" alt="Raihan logo" className="h-7 w-7 rounded-sm border border-border bg-card" />
