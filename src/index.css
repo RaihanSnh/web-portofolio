@@ -309,3 +309,24 @@ html.is-scrolling *::-webkit-scrollbar-thumb {
   60% { transform: rotate(2deg) }
   100% { transform: rotate(0deg) }
 }
+
+/* lightweight stacked page flips (full width, top-right peel) */
+.theme-pageflip { position: fixed; inset: 0; z-index: 70; pointer-events: none; perspective: 1400px; transform: translateZ(0); contain: layout paint; }
+.theme-pageflip .sheet {
+  position: absolute; top: 0; right: 0; width: 100vw; height: 100vh;
+  transform-origin: 100% 0%; transform-style: preserve-3d; will-change: transform, opacity; transform: translateZ(0);
+  animation: pageFlipPeel 1400ms cubic-bezier(.22,.66,.18,1) forwards;
+}
+.theme-pageflip .face { position: absolute; inset: 0; backface-visibility: hidden; border-radius: 10px 0 6px 10px; box-shadow: 0 8px 18px rgba(0,0,0,.16), inset 0 0 0 1px rgba(0,0,0,.06); will-change: transform, opacity; }
+.theme-pageflip .front { background: linear-gradient(120deg, rgba(0,0,0,.14) 0%, transparent 40%), url('/placeholder/paper-texture.svg'); background-repeat: no-repeat, repeat; background-size: 100% 100%, cover; }
+.theme-pageflip .back { transform: rotateY(180deg); background: linear-gradient(300deg, rgba(0,0,0,.12) 0%, transparent 40%), url('/placeholder/paper-texture.svg'); background-repeat: no-repeat, repeat; background-size: 100% 100%, cover; }
+.theme-pageflip .sheet::after { content: ""; position: absolute; inset: 0; background: radial-gradient(80vw 70vh at 100% 0%, rgba(0,0,0,.12), transparent 60%); opacity: .18; pointer-events: none; }
+@keyframes pageFlipPeel {
+  0%   { opacity: 0; transform: translateZ(0) rotateY(0deg) translate3d(0,0,0) }
+  6%   { opacity: 1 }
+  38%  { transform: translateZ(0) rotateY(56deg) translate3d(-30vw, 1vh, 0) }
+  62%  { transform: translateZ(0) rotateY(56deg) translate3d(-34vw, 1.2vh, 0) }
+  82%  { transform: translateZ(0) rotateY(120deg) translate3d(-78vw, 3.2vh, 0) }
+  100% { opacity: 0; transform: translateZ(0) rotateY(180deg) translate3d(-100vw, 4.4vh, 0) }
+}
+@media (prefers-reduced-motion: reduce) { .theme-pageflip .sheet { animation-duration: 360ms } }

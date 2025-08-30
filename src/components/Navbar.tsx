@@ -5,6 +5,7 @@ import { Moon, Sun, Menu } from "lucide-react"
 export function Navbar() {
   const [open, setOpen] = React.useState(false)
   const [isDark, setIsDark] = React.useState(false)
+  const wipingRef = React.useRef(false)
 
   React.useEffect(() => {
     const root = document.documentElement
@@ -13,6 +14,43 @@ export function Navbar() {
   }, [isDark])
 
   const linkClass = "px-3 py-2 rounded-md hover:bg-accent/60"
+
+  const toggleThemeWithWipe = () => {
+    if (wipingRef.current) return
+    wipingRef.current = true
+    // Stacked page flip container
+    const container = document.createElement('div')
+    container.className = 'theme-pageflip'
+    const sheetCount = 5
+    const sheets: HTMLDivElement[] = []
+    for (let i = 0; i < sheetCount; i++) {
+      const sheet = document.createElement('div')
+      sheet.className = 'sheet'
+      sheet.style.animationDelay = `${i * 80}ms`
+      const front = document.createElement('div')
+      front.className = 'face front'
+      const back = document.createElement('div')
+      back.className = 'face back'
+      sheet.appendChild(front)
+      sheet.appendChild(back)
+      container.appendChild(sheet)
+      sheets.push(sheet)
+    }
+    document.body.appendChild(container)
+
+    // Flip theme around the middle sheet timing
+    const midTime = 80 * Math.floor(sheetCount / 2) + 220
+    const themeTimer = window.setTimeout(() => { setIsDark(v => !v) }, midTime)
+
+    // Cleanup after the last animation ends
+    const total = 80 * (sheetCount - 1) + 1500
+    const endTimer = window.setTimeout(() => {
+      container.remove()
+      wipingRef.current = false
+      window.clearTimeout(themeTimer)
+      window.clearTimeout(endTimer)
+    }, total)
+  }
 
   const smoothScrollTo = (hash: string) => {
     const id = hash.replace('#', '')
@@ -39,7 +77,7 @@ export function Navbar() {
             variant="ghost"
             size="icon"
             aria-label="Toggle theme"
-            onClick={() => setIsDark(v => !v)}
+            onClick={toggleThemeWithWipe}
           >
             {isDark ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
           </Button>
@@ -84,7 +122,7 @@ export function Navbar() {
             <a className={linkClass} href="#social" onClick={(e) => { e.preventDefault(); setOpen(false); smoothScrollTo('#social') }}>Social</a>
             <Button
               variant="outline"
-              onClick={() => setIsDark(v => !v)}
+              onClick={toggleThemeWithWipe}
               aria-label="Toggle theme"
               className="mt-2"
             >
