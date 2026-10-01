@@ -35,6 +35,16 @@ export type Social = {
   instagram?: string
 }
 
+export type Experience = {
+  id: string
+  organization: string
+  employment: string
+  period: string
+  location: string
+  roles: string[]
+  color: "yellow" | "pink" | "blue" | "green"
+}
+
 export const PROFILE: Profile = {
   name: "Raihan Satya Natha Hamzah",
   role: "Software Engineer",
@@ -49,22 +59,51 @@ export const PROFILE: Profile = {
 
 export const SONGS: Song[] = [
   {
-    id: 1,
-    title: "Why Are Sundays So Depressing?",
-    artist: "Artist Name",
-    src: "/audio/song1.mp3",
-    albumArt: "/img/album1.svg",
-    length: "3:45",
-    lyric: "you're hidin in the background but you want to be found",
+    id: 2,
+    title: "Want To Be Close",
+    artist: "Azumi Takahashi.",
+    src: "/music/Want%20To%20Be%20Close%20-Reload-.mp3",
+    albumArt: "/albumcover/persona3.jpg",
+    length: "2:14",
+  },
+]
+
+export const EXPERIENCES: Experience[] = [
+  {
+    id: "infinys",
+    organization: "PT Infinys System Indonesia",
+    employment: "Internship",
+    period: "2024",
+    location: "On-site",
+    roles: ["Software Developer · Research And Development Intern"],
+    color: "green",
   },
   {
-    id: 2,
-    title: "Song ",
-    artist: "testapajanamaartistlaguidk",
-    src: "/audio/song1.mp3",
-    albumArt: "/img/album1.svg",
-    length: "3:45",
-    lyric: "you're hidin in the background but you want to be found",
+    id: "bara",
+    organization: "BARA TEKNOVASI",
+    employment: "Contract",
+    period: "2024",
+    location: "On-site",
+    roles: ["Full-stack Developer"],
+    color: "yellow",
+  },
+  {
+    id: "freelance",
+    organization: "Freelance",
+    employment: "Freelance",
+    period: "2025",
+    location: "Remote",
+    roles: ["Web Developer"],
+    color: "pink",
+  },
+  {
+    id: "bncc",
+    organization: "Bina Nusantara Computer Club",
+    employment: "Student Organization",
+    period: "2025 — 2026",
+    location: "Hybrid",
+    roles: ["Research And Development Manager", "Backend TPM Mentor", "Research And Development"],
+    color: "blue",
   },
 ]
 
@@ -139,5 +178,3 @@ export const SOCIALS: Social = {
   linkedin: "https://www.linkedin.com/in/raihansatyanathahamzah/",
   instagram: "https://instagram.com/raihansnh",
 }
-
-

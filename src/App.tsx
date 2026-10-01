@@ -3,9 +3,11 @@ import './App.css'
 import { Navbar } from '@/components/Navbar'
 import { Hero } from '@/components/Hero'
 import { About } from '@/components/About'
+import { Experience } from '@/components/Experience'
 import { Projects } from '@/components/Projects'
 import { Footer } from '@/components/Footer'
 import { ScrollTop } from '@/components/ScrollTop'
+import { DownloadCv } from '@/components/DownloadCv'
 
 function App() {
   React.useEffect(() => {
@@ -33,9 +35,11 @@ function App() {
       <main>
         <Hero />
         <About />
+        <Experience />
         <Projects />
       </main>
       <Footer />
+      <DownloadCv />
       <ScrollTop />
     </div>
   )

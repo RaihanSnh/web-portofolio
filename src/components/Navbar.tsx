@@ -15,41 +15,43 @@ export function Navbar() {
 
   const linkClass = "px-3 py-2 rounded-md hover:bg-accent/60"
 
-  const toggleThemeWithWipe = () => {
+  const toggleTheme = () => {
     if (wipingRef.current) return
-    wipingRef.current = true
-    // Stacked page flip container
-    const container = document.createElement('div')
-    container.className = 'theme-pageflip'
-    const sheetCount = 5
-    const sheets: HTMLDivElement[] = []
-    for (let i = 0; i < sheetCount; i++) {
-      const sheet = document.createElement('div')
-      sheet.className = 'sheet'
-      sheet.style.animationDelay = `${i * 80}ms`
-      const front = document.createElement('div')
-      front.className = 'face front'
-      const back = document.createElement('div')
-      back.className = 'face back'
-      sheet.appendChild(front)
-      sheet.appendChild(back)
-      container.appendChild(sheet)
-      sheets.push(sheet)
+    const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    if (prefersReducedMotion) {
+      setIsDark((value) => !value)
+      return
     }
+
+    wipingRef.current = true
+    const nextThemeIsDark = !isDark
+    const container = document.createElement('div')
+    container.className = `theme-transition ${nextThemeIsDark ? 'to-night' : 'to-day'}`
+    const sky = document.createElement('div')
+    sky.className = 'sky'
+    const stars = document.createElement('div')
+    stars.className = 'stars'
+    const sun = document.createElement('div')
+    sun.className = 'sun'
+    const moon = document.createElement('div')
+    moon.className = 'moon'
+    const horizon = document.createElement('div')
+    horizon.className = 'horizon'
+    container.appendChild(sky)
+    container.appendChild(stars)
+    container.appendChild(sun)
+    container.appendChild(moon)
+    container.appendChild(horizon)
     document.body.appendChild(container)
 
-    // Flip theme around the middle sheet timing
-    const midTime = 80 * Math.floor(sheetCount / 2) + 220
-    const themeTimer = window.setTimeout(() => { setIsDark(v => !v) }, midTime)
-
-    // Cleanup after the last animation ends
-    const total = 80 * (sheetCount - 1) + 1500
+    window.requestAnimationFrame(() => container.classList.add('is-playing'))
+    const themeTimer = window.setTimeout(() => setIsDark(nextThemeIsDark), 700)
     const endTimer = window.setTimeout(() => {
       container.remove()
       wipingRef.current = false
       window.clearTimeout(themeTimer)
       window.clearTimeout(endTimer)
-    }, total)
+    }, 1550)
   }
 
   const smoothScrollTo = (hash: string) => {
@@ -71,13 +73,15 @@ export function Navbar() {
         </a>
         <div className="hidden md:flex items-center gap-1">
           <a href="#about" className={linkClass} onClick={(e) => { e.preventDefault(); smoothScrollTo('#about') }}>About</a>
+          <a href="#experience" className={linkClass} onClick={(e) => { e.preventDefault(); smoothScrollTo('#experience') }}>Experience</a>
           <a href="#projects" className={linkClass} onClick={(e) => { e.preventDefault(); smoothScrollTo('#projects') }}>Projects</a>
           <a href="#social" className={linkClass} onClick={(e) => { e.preventDefault(); smoothScrollTo('#social') }}>Social</a>
           <Button
             variant="ghost"
             size="icon"
             aria-label="Toggle theme"
-            onClick={toggleThemeWithWipe}
+            aria-pressed={isDark}
+            onClick={toggleTheme}
           >
             {isDark ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
           </Button>
@@ -118,12 +122,14 @@ export function Navbar() {
         <div className="md:hidden border-t border-border bg-background">
           <div className="mx-auto max-w-6xl px-4 py-3 flex flex-col gap-2">
             <a className={linkClass} href="#about" onClick={(e) => { e.preventDefault(); setOpen(false); smoothScrollTo('#about') }}>About</a>
+            <a className={linkClass} href="#experience" onClick={(e) => { e.preventDefault(); setOpen(false); smoothScrollTo('#experience') }}>Experience</a>
             <a className={linkClass} href="#projects" onClick={(e) => { e.preventDefault(); setOpen(false); smoothScrollTo('#projects') }}>Projects</a>
             <a className={linkClass} href="#social" onClick={(e) => { e.preventDefault(); setOpen(false); smoothScrollTo('#social') }}>Social</a>
             <Button
               variant="outline"
-              onClick={toggleThemeWithWipe}
+              onClick={toggleTheme}
               aria-label="Toggle theme"
+              aria-pressed={isDark}
               className="mt-2"
             >
               {isDark ? "Light" : "Dark"} Mode
@@ -134,5 +140,3 @@ export function Navbar() {
     </header>
   )
 }
-
-

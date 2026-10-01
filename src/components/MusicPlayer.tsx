@@ -1,265 +1,153 @@
 import * as React from "react"
 import { SONGS } from "@/data"
-import { Button } from "@/components/ui/button"
-import { Slider } from "@/components/ui/slider"
-import { Repeat, Shuffle, SkipBack, SkipForward, Play, Pause, Volume2 } from "lucide-react"
-import { Card, CardContent, CardHeader } from "@/components/ui/card"
+import { Pause, Play, Repeat2, Volume2, VolumeX } from "lucide-react"
 
-function ScrollingText({ text, containerClassName, textClassName }: { text: string; containerClassName?: string; textClassName?: string }) {
-  const containerRef = React.useRef<HTMLDivElement | null>(null)
-  const contentRef = React.useRef<HTMLDivElement | null>(null)
-  const measureRef = React.useRef<HTMLDivElement | null>(null)
-  const [shouldMarquee, setShouldMarquee] = React.useState(false)
-  const [durationMs, setDurationMs] = React.useState(18000)
+const formatTime = (seconds: number) => {
+  if (!Number.isFinite(seconds)) return "0:00"
+  const minutes = Math.floor(seconds / 60)
+  const remainingSeconds = Math.floor(seconds % 60)
+  return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`
+}
+
+function TrackTitle({ title }: { title: string }) {
+  const containerRef = React.useRef<HTMLDivElement>(null)
+  const textRef = React.useRef<HTMLSpanElement>(null)
+  const [overflow, setOverflow] = React.useState(0)
 
   React.useEffect(() => {
-    const doMeasure = () => {
+    const measure = () => {
       const container = containerRef.current
-      const measureEl = measureRef.current
-      if (!container || !measureEl) return
-      const needs = measureEl.scrollWidth > container.clientWidth + 2
-      setShouldMarquee(needs)
-      if (needs) {
-        const overflow = measureEl.scrollWidth - container.clientWidth
-        const pxPerSec = 60
-        const ms = Math.min(28000, Math.max(12000, Math.round((overflow / pxPerSec) * 1000)))
-        setDurationMs(ms)
-      }
+      const text = textRef.current
+      if (!container || !text) return
+      setOverflow(Math.max(0, text.scrollWidth - container.clientWidth))
     }
-    const raf = requestAnimationFrame(doMeasure)
-    const ro = new ResizeObserver(doMeasure)
-    if (containerRef.current) ro.observe(containerRef.current)
-    return () => { ro.disconnect(); cancelAnimationFrame(raf) }
-  }, [text])
+    measure()
+    const observer = new ResizeObserver(measure)
+    if (containerRef.current) observer.observe(containerRef.current)
+    return () => observer.disconnect()
+  }, [title])
 
   return (
-    <div ref={containerRef} className={`relative overflow-hidden min-w-0 ${containerClassName || ""}`}>
-      {/* hidden measuring element to decide overflow without affecting layout */}
-      <div ref={measureRef} className={`absolute left-0 top-0 invisible whitespace-nowrap pointer-events-none ${textClassName || ""}`}>{text}</div>
-      {shouldMarquee ? (
-        <div
-          ref={contentRef}
-          className={`flex w-max animate-marquee ${textClassName || ""}`}
-          style={{ animationDuration: `${durationMs}ms` }}
-          aria-label={text}
-        >
-          <span className="pr-10 whitespace-nowrap">{text}</span>
-          <span className="pr-10 whitespace-nowrap" aria-hidden>
-            {text}
-          </span>
-        </div>
-      ) : (
-        <div ref={contentRef} className={`truncate whitespace-nowrap ${textClassName || ""}`} aria-label={text}>
-          {text}
-        </div>
-      )}
+    <div ref={containerRef} className="p3-player__title-wrap">
+      <span ref={textRef} className={overflow ? "is-marquee" : ""} style={{ "--title-overflow": `${overflow}px` } as React.CSSProperties}>{title}</span>
     </div>
   )
 }
 
-type AudioState = {
-  currentIndex: number
-  isPlaying: boolean
-  progress: number // seconds
-  duration: number // seconds
-  volume: number // 0 - 1
-  shuffle: boolean
-  repeat: boolean
-}
+export function MusicPlayer() {
+  const [currentIndex, setCurrentIndex] = React.useState(0)
+  const [isPlaying, setIsPlaying] = React.useState(false)
+  const [progress, setProgress] = React.useState(0)
+  const [duration, setDuration] = React.useState(0)
+  const [volume, setVolume] = React.useState(0.72)
+  const [previousVolume, setPreviousVolume] = React.useState(0.72)
+  const [isRepeat, setIsRepeat] = React.useState(false)
+  const audioRef = React.useRef<HTMLAudioElement>(null)
 
-type PlayerProps = { minimal?: boolean }
+  const currentSong = SONGS[currentIndex]
 
-export function MusicPlayer({ minimal = false }: PlayerProps) {
-  const [state, setState] = React.useState<AudioState>({
-    currentIndex: 0,
-    isPlaying: false,
-    progress: 0,
-    duration: 0,
-    volume: 0.8,
-    shuffle: false,
-    repeat: false,
-  })
-
-  const audioRef = React.useRef<HTMLAudioElement | null>(null)
-
-  const currentSong = SONGS[state.currentIndex]
-
-  React.useEffect(() => {
-    if (!audioRef.current) return
-    audioRef.current.volume = state.volume
-  }, [state.volume])
-
-  React.useEffect(() => {
-    if (!audioRef.current) return
-    if (state.isPlaying) audioRef.current.play().catch(() => {})
-    else audioRef.current.pause()
-  }, [state.isPlaying, state.currentIndex])
-
-  const onTimeUpdate = () => {
-    const a = audioRef.current
-    if (!a) return
-    setState((s) => ({ ...s, progress: a.currentTime, duration: a.duration || 0 }))
-  }
-
-  const seek = (time: number) => {
-    const a = audioRef.current
-    if (!a) return
-    a.currentTime = time
-    setState((s) => ({ ...s, progress: time }))
-  }
-
-  const format = (sec: number) => {
-    if (!isFinite(sec)) return "0:00"
-    const m = Math.floor(sec / 60)
-    const s = Math.floor(sec % 60)
-    return `${m}:${s.toString().padStart(2, "0")}`
-  }
-
-  const next = React.useCallback(() => {
-    setState((s) => {
-      const nextIndex = s.shuffle
-        ? Math.floor(Math.random() * SONGS.length)
-        : (s.currentIndex + 1) % SONGS.length
-      return { ...s, currentIndex: nextIndex, progress: 0 }
-    })
+  const selectSong = React.useCallback((index: number) => {
+    setCurrentIndex(index)
+    setProgress(0)
   }, [])
 
-  const prev = () => {
-    setState((s) => ({
-      ...s,
-      currentIndex: (s.currentIndex - 1 + SONGS.length) % SONGS.length,
-      progress: 0,
-    }))
-  }
-
-  const onEnded = () => {
-    setState((s) => {
-      if (s.repeat) return { ...s, progress: 0, isPlaying: true }
-      const nextIndex = s.shuffle
-        ? Math.floor(Math.random() * SONGS.length)
-        : (s.currentIndex + 1) % SONGS.length
-      return { ...s, currentIndex: nextIndex, progress: 0 }
-    })
-  }
+  const nextSong = React.useCallback(() => selectSong((currentIndex + 1) % SONGS.length), [currentIndex, selectSong])
 
   React.useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      if (e.code === "Space") {
-        e.preventDefault()
-        setState((s) => ({ ...s, isPlaying: !s.isPlaying }))
-      } else if (e.code === "ArrowRight") {
-        seek(Math.min(state.progress + 5, state.duration))
-      } else if (e.code === "ArrowLeft") {
-        seek(Math.max(state.progress - 5, 0))
+    const audio = audioRef.current
+    if (!audio) return
+    audio.volume = volume
+  }, [volume])
+
+  React.useEffect(() => {
+    const audio = audioRef.current
+    if (!audio) return
+    if (isPlaying) audio.play().catch(() => setIsPlaying(false))
+    else audio.pause()
+  }, [currentIndex, isPlaying])
+
+  React.useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      const target = event.target as HTMLElement
+      if (target.tagName === "INPUT" || target.tagName === "BUTTON") return
+      if (event.code === "Space") {
+        event.preventDefault()
+        setIsPlaying((value) => !value)
       }
     }
-    window.addEventListener("keydown", onKey)
-    return () => window.removeEventListener("keydown", onKey)
-  }, [state.progress, state.duration])
+    window.addEventListener("keydown", onKeyDown)
+    return () => window.removeEventListener("keydown", onKeyDown)
+  }, [])
+
+  const toggleMute = () => {
+    if (volume > 0) {
+      setPreviousVolume(volume)
+      setVolume(0)
+    } else {
+      setVolume(previousVolume || 0.72)
+    }
+  }
+
+  const seek = (value: number) => {
+    const audio = audioRef.current
+    if (!audio) return
+    audio.currentTime = value
+    setProgress(value)
+  }
+
+  const handleEnded = () => {
+    const audio = audioRef.current
+    if (isRepeat && audio) {
+      audio.currentTime = 0
+      audio.play().catch(() => setIsPlaying(false))
+      return
+    }
+    nextSong()
+  }
+
+  const progressPercent = duration ? (progress / duration) * 100 : 0
+  const volumePercent = volume * 100
 
   return (
-    <Card className="overflow-hidden card-shadow">
-      <CardHeader className="flex flex-col gap-4">
-        <div className="grid gap-6 md:grid-cols-[220px_1fr]">
-          <div className="space-y-4">
-            <div className={`relative aspect-square overflow-hidden rounded-md border border-border bg-muted ${state.isPlaying ? 'animate-wobble-soft shadow-lg' : ''}`}>
-              <img src={currentSong.albumArt} alt="current album art" className="h-full w-full object-cover" />
-              <span aria-hidden className="pointer-events-none absolute -left-1 -top-1 h-4 w-10 bg-[url('/img/tape.svg')] bg-contain bg-no-repeat" />
-              <span aria-hidden className="pointer-events-none absolute -right-1 -top-1 h-4 w-10 rotate-6 bg-[url('/img/tape.svg')] bg-contain bg-no-repeat" />
-              <span aria-hidden className="absolute right-3 top-3 h-16 w-0.5 bg-black/50 origin-top rotate-12 rounded-full" />
-            </div>
+    <section className="p3-player" aria-label="Music player">
+      <svg className="p3-player__headset-art" viewBox="0 0 120 120" aria-hidden="true">
+        <path d="M25 67V53a35 35 0 0 1 70 0v14" fill="none" stroke="currentColor" strokeWidth="11" strokeLinecap="round" />
+        <path d="M20 63h17v35H20a8 8 0 0 1-8-8V71a8 8 0 0 1 8-8Zm63 0h17a8 8 0 0 1 8 8v19a8 8 0 0 1-8 8H83Z" fill="currentColor" />
+        <path d="M26 73h6m62 0h6" stroke="white" strokeWidth="4" strokeLinecap="round" opacity=".9" />
+        <path d="m77 101 9 9" stroke="currentColor" strokeWidth="5" strokeLinecap="round" />
+      </svg>
+      <div className="p3-player__topline"><span>late night radio</span><span aria-hidden></span></div>
+      <div className="p3-player__main">
+        <div className="p3-player__art">
+          <img src={currentSong.albumArt} alt={`Album cover for ${currentSong.title}`} />
+          <span className="p3-player__tape p3-player__tape--left" aria-hidden />
+          <span className="p3-player__tape p3-player__tape--right" aria-hidden />
+          <span className="p3-player__moon" aria-hidden>☾</span>
+          <div className={`p3-player__disc ${isPlaying ? "is-spinning" : ""}`} aria-hidden><span /></div>
+        </div>
+
+        <div className="p3-player__details">
+          <div className="p3-player__now">NOW PLAYING <span className={isPlaying ? "is-live" : ""}>{isPlaying ? "ON AIR" : "STANDBY"}</span></div>
+          <TrackTitle title={currentSong.title} />
+          <p>{currentSong.artist}</p>
+          <div className="p3-player__wave" aria-hidden>{Array.from({ length: 28 }, (_, index) => <i key={index} className={isPlaying ? "is-active" : ""} style={{ "--bar": `${20 + ((index * 29) % 65)}%`, "--delay": `${index * -0.07}s` } as React.CSSProperties} />)}</div>
+          <div className="p3-player__timeline">
+            <span>{formatTime(progress)}</span>
+            <input aria-label="Song progress" type="range" min="0" max={duration || 0} step="0.1" value={progress} onChange={(event) => seek(Number(event.target.value))} style={{ "--range-value": `${progressPercent}%` } as React.CSSProperties} />
+            <span>{formatTime(duration)}</span>
           </div>
-          <div className="min-w-0 self-center">
-            {!minimal && (
-              <>
-                <div className="relative inline-block -rotate-1 rounded-md border border-border bg-accent/40 px-3 py-2 shadow">
-                  <p className="font-handwriting text-lg md:text-2xl italic leading-snug" aria-live="polite">
-                    {currentSong.lyric?.trim() ? `“${currentSong.lyric}”` : 'Add ur favorite lyric in src/data.ts (SONGS[].lyric)'}
-                  </p>
-                </div>
-                <div className="mt-3 flex items-end gap-3">
-                  <div className="hidden md:flex items-end gap-1" aria-hidden>
-                    <span className={`eq-bar ${state.isPlaying ? 'animate-eq' : ''}`} />
-                    <span className={`eq-bar delay-100 ${state.isPlaying ? 'animate-eq' : ''}`} />
-                    <span className={`eq-bar delay-200 ${state.isPlaying ? 'animate-eq' : ''}`} />
-                    <span className={`eq-bar delay-300 ${state.isPlaying ? 'animate-eq' : ''}`} />
-                    <span className={`eq-bar delay-400 ${state.isPlaying ? 'animate-eq' : ''}`} />
-                  </div>
-                  <div className="min-w-0">
-                    <ScrollingText
-                      text={currentSong.title}
-                      containerClassName="max-w-[260px] md:max-w-[420px]"
-                      textClassName="text-2xl md:text-3xl font-black"
-                    />
-                    <ScrollingText
-                      text={currentSong.artist}
-                      containerClassName="max-w-[260px] md:max-w-[420px]"
-                      textClassName="text-base md:text-lg text-muted-foreground"
-                    />
-                  </div>
-                </div>
-              </>
-            )}
+          <div className="p3-player__controls">
+            <button type="button" className="p3-player__play" onClick={() => setIsPlaying((value) => !value)} aria-label={isPlaying ? "Pause" : "Play"}>{isPlaying ? <Pause fill="currentColor" /> : <Play fill="currentColor" />}</button>
+            <button type="button" className={isRepeat ? "is-selected" : ""} onClick={() => setIsRepeat((value) => !value)} aria-label="Repeat track" aria-pressed={isRepeat}><Repeat2 /></button>
           </div>
         </div>
-      </CardHeader>
-      <CardContent className="space-y-3">
-        <div className="flex items-center gap-2">
-          {!minimal && <span className="w-10 text-xs tabular-nums">{format(state.progress)}</span>}
-          <Slider
-            min={0}
-            max={Math.max(state.duration, 0.00001)}
-            step={0.1}
-            value={state.progress}
-            onChange={(e) => seek(Number((e.target as HTMLInputElement).value))}
-            aria-label="Seek"
-          />
-          {!minimal && <span className="w-10 text-xs tabular-nums text-right">{format(state.duration)}</span>}
-        </div>
-        <div className="flex items-center justify-between gap-2">
-          <div className="flex items-center gap-2">
-            <Button variant="ghost" size="icon" onClick={() => setState((s) => ({ ...s, shuffle: !s.shuffle }))} aria-pressed={state.shuffle} aria-label="Shuffle">
-              <Shuffle className={"h-5 w-5 " + (state.shuffle ? "text-primary" : "")} />
-            </Button>
-            <Button variant="ghost" size="icon" onClick={prev} aria-label="Previous">
-              <SkipBack className="h-5 w-5" />
-            </Button>
-            <Button variant="secondary" size="icon" onClick={() => setState((s) => ({ ...s, isPlaying: !s.isPlaying }))} aria-label={state.isPlaying ? "Pause" : "Play"}>
-              {state.isPlaying ? <Pause className="h-6 w-6" /> : <Play className="h-6 w-6" />}
-            </Button>
-            <Button variant="ghost" size="icon" onClick={next} aria-label="Next">
-              <SkipForward className="h-5 w-5" />
-            </Button>
-            <Button variant="ghost" size="icon" onClick={() => setState((s) => ({ ...s, repeat: !s.repeat }))} aria-pressed={state.repeat} aria-label="Repeat">
-              <Repeat className={"h-5 w-5 " + (state.repeat ? "text-primary" : "")} />
-            </Button>
-          </div>
-          <div className="flex items-center gap-2">
-            {!minimal && (
-              <>
-                <Volume2 className="h-4 w-4" />
-                <input
-                  type="range"
-                  min={0}
-                  max={1}
-                  step={0.01}
-                  value={state.volume}
-                  onChange={(e) => setState((s) => ({ ...s, volume: Number(e.target.value) }))}
-                  aria-label="Volume"
-                  className="h-2 w-28 cursor-pointer rounded-full bg-muted"
-                />
-              </>
-            )}
-          </div>
-        </div>
-        <audio
-          ref={audioRef}
-          src={currentSong.src}
-          onTimeUpdate={onTimeUpdate}
-          onEnded={onEnded}
-          preload="none"
-        />
-      </CardContent>
-    </Card>
+      </div>
+      <div className="p3-player__bottom">
+        <span className="p3-player__headphones" aria-hidden>♬</span>
+        <div className="p3-player__volume"><button type="button" onClick={toggleMute} aria-label={volume ? "Mute" : "Unmute"}>{volume ? <Volume2 /> : <VolumeX />}</button><input aria-label="Volume" type="range" min="0" max="1" step="0.01" value={volume} onChange={(event) => setVolume(Number(event.target.value))} style={{ "--range-value": `${volumePercent}%` } as React.CSSProperties} /><span>{Math.round(volumePercent)}</span></div>
+        <span className="p3-player__note">press space to play</span>
+      </div>
+      <audio ref={audioRef} src={currentSong.src} preload="metadata" onLoadedMetadata={(event) => setDuration(event.currentTarget.duration)} onTimeUpdate={(event) => setProgress(event.currentTarget.currentTime)} onEnded={handleEnded} />
+    </section>
   )
 }

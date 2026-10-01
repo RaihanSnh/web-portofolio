@@ -10,11 +10,8 @@ export function About() {
           <div className="rounded-xl border border-border bg-card p-6 card-shadow relative">
             <h2 className="font-black text-2xl md:text-3xl mb-2 underline-scribble inline-block">About</h2>
             <p className="leading-relaxed">
-              Hi! I&apos;m {PROFILE.name}. I write software that tries to be calm, clear, and
-              reliable; readable code, straightforward ideas, and solutions that make
-              sense in real life. Less magic, more understanding.
+              Hi! I&apos;m {PROFILE.name}. Web developer based in Indonesia. I spend most of my time working on the backend, making sure web apps run smoothly and solve real-world problems.
             </p>
-            <p className="mt-3 italic">craft slowly, care deeply, debug patiently.</p>
             <span aria-hidden className="absolute -right-3 -top-2 h-7 w-7 bg-[url('/img/pixel-heart.svg')] bg-contain bg-no-repeat animate-bob" />
             <span aria-hidden className="absolute right-8 -bottom-3 h-7 w-7 bg-[url('/img/pacman.svg')] bg-contain bg-no-repeat animate-bob" />
             <span aria-hidden className="absolute -right-5 bottom-5 h-10 w-16 bg-[url('/img/redhood.png')] bg-contain bg-no-repeat animate-drift" />

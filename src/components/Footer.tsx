@@ -1,4 +1,3 @@
-import * as React from "react"
 import { SOCIALS, PROFILE } from "@/data"
 
 export function Footer() {
@@ -47,7 +46,7 @@ export function Footer() {
           </div>
           {/* back-to-top removed per request; floating ScrollTop remains */}
         </div>
-        <p className="mt-6 text-center text-2xl md:text-3xl italic font-handwriting -rotate-1">I yearn for meaningful work and genuine connections.</p>
+        <p className="mt-6 text-center text-2xl md:text-3xl italic font-handwriting -rotate-1">Always open to interesting opportunities. Feel free to reach out!</p>
         <p className="mt-4 text-center text-sm text-muted-foreground">
           <span className="inline-block rounded-md ghibli-pill px-2 py-1">
             © {new Date().getFullYear()} {PROFILE.name} · brewed with coffee and late-night commits.

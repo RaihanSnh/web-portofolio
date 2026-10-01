@@ -12,7 +12,7 @@ const stickers = [
   { label: "fashion", emoji: "🧥" },
   { label: "music", emoji: "🎵" },
   { label: "nature", emoji: "⛰️" },
-  { label: "bakery", emoji: "🥐" },
+  { label: "skateboard", emoji: "🛹" },
   { label: "cycling", emoji: "🚴" },
   { label: "craft", emoji: "✂️" },
 ]
