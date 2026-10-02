@@ -149,7 +149,7 @@ export const PROJECTS: Project[] = [
     folder: "TypeScript",
     name: "Ringkasan Learn",
     thumbnail: "/project/ringkasan-learn.png",
-    description: "An interactive learning website designed to help students understand Euclids Elements in a more engaging and visual way. It combines clear explanations with interactive demonstrations, step-by-step geometric constructions, and visualizations, making complex mathematical concepts easier to follow and explore.",
+    description: "An interactive learning website designed to help students understand Euclids Elements in a more engaging and visual way. Using JSXGraph, it combines clear explanations with interactive demonstrations, step-by-step geometric constructions, and visualizations, making complex mathematical concepts easier to follow and explore.",
     tech: ["TypeScript"],
   },
   {
