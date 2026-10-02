@@ -67,11 +67,6 @@ export function Projects() {
                       <div className="min-w-0 text-left">
                         <div className="flex items-center gap-2">
                           <span className="font-semibold truncate">{p.name}</span>
-                          <div className="flex gap-1">
-                            {p.tech.map((t) => (
-                              <span key={t} className="rounded-full border border-border bg-muted px-2 py-0.5 text-xs">{t}</span>
-                            ))}
-                          </div>
                         </div>
                         <p className="text-left text-sm text-muted-foreground whitespace-pre-line">{p.description}</p>
                         <div className="mt-2 flex gap-3 text-sm">

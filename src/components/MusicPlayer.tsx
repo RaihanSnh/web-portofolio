@@ -1,6 +1,6 @@
 import * as React from "react"
 import { SONGS } from "@/data"
-import { Pause, Play, Repeat2, Volume2, VolumeX } from "lucide-react"
+import { Pause, Play, Volume2, VolumeX } from "lucide-react"
 
 const formatTime = (seconds: number) => {
   if (!Number.isFinite(seconds)) return "0:00"
@@ -41,7 +41,6 @@ export function MusicPlayer() {
   const [duration, setDuration] = React.useState(0)
   const [volume, setVolume] = React.useState(0.72)
   const [previousVolume, setPreviousVolume] = React.useState(0.72)
-  const [isRepeat, setIsRepeat] = React.useState(false)
   const audioRef = React.useRef<HTMLAudioElement>(null)
 
   const currentSong = SONGS[currentIndex]
@@ -97,7 +96,7 @@ export function MusicPlayer() {
 
   const handleEnded = () => {
     const audio = audioRef.current
-    if (isRepeat && audio) {
+    if (audio) {
       audio.currentTime = 0
       audio.play().catch(() => setIsPlaying(false))
       return
@@ -138,7 +137,6 @@ export function MusicPlayer() {
           </div>
           <div className="p3-player__controls">
             <button type="button" className="p3-player__play" onClick={() => setIsPlaying((value) => !value)} aria-label={isPlaying ? "Pause" : "Play"}>{isPlaying ? <Pause fill="currentColor" /> : <Play fill="currentColor" />}</button>
-            <button type="button" className={isRepeat ? "is-selected" : ""} onClick={() => setIsRepeat((value) => !value)} aria-label="Repeat track" aria-pressed={isRepeat}><Repeat2 /></button>
           </div>
         </div>
       </div>
