@@ -211,6 +211,14 @@ export const PROJECTS: Project[] = [
   },
   {
     id: "proj-10",
+    folder:"PHP",
+    name: "SisfoBekangAD",
+    thumbnail: "/project/sisfobekangad.png",
+    description: "SisfoBekangAD (Sistem Informasi Pembekalan Angkutan TNI AD) is a web based application designed to manage and streamline the logistics and supply chain operations of the Indonesian Army (TNI AD). It provides a centralized platform for tracking, managing, and optimizing the distribution of supplies, equipment, and resources within the military organization.",
+    tech: ["PHP"],
+  },
+  {
+    id: "proj-11",
     folder: "PHP",
     name: "Metria",
     thumbnail: "/project/metria.png",
@@ -219,7 +227,7 @@ export const PROJECTS: Project[] = [
     repo: "https://github.com/RaihanSnh/metria",
   },
   {
-    id: "proj-11",
+    id: "proj-12",
     folder: "PHP",
     name: "Ujianify",
     thumbnail: "/project/ujianify.png",
@@ -228,7 +236,7 @@ export const PROJECTS: Project[] = [
     repo: "https://github.com/RaihanSnh/ujianify",
   },
   {
-    id: "proj-12",
+    id: "proj-13",
     folder: "PHP",
     name: "Stock Opname Back-End",
     thumbnail: "/project/stock-opname.png",
@@ -237,7 +245,7 @@ export const PROJECTS: Project[] = [
     repo: "https://github.com/RaihanSnh/stock-opname-be",
   },
   {
-    id: "proj-13",
+    id: "proj-14",
     folder: "Go",
     name: "LnT BNCC Showcase Back-End",
     thumbnail: "/project/lnt-bncc-showcase.png",
